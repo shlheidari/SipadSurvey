@@ -1,3 +1,6 @@
+import sys
+from getpass import getpass
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -8,11 +11,12 @@ from selenium.webdriver.support import expected_conditions as EC
 
 # Setup constants and configuration
 TIMEOUT = 60
+MAX_RETRIES = 5  # attempts per survey item before giving up
 LOGIN_URL = "https://sipad.tums.ac.ir/Dashboard"
 
 # Input credentials and preferences
 username = input("Enter your username: ")
-password = input("Enter your password: ")
+password = getpass("Enter your password: ")
 print("Please select the corresponding number to indicate your preferred option:\n"
       "0: very good\n1: good\n2: average\n3: weak\n4: very weak\n5: undecided\n(Default Response: 0)")
 try:
@@ -66,23 +70,27 @@ switch_to_frame("iframe_New_EvalAnswerSubject1_Tab", By.ID)
 # Process survey responses
 all_elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, "/html/body/form/div[5]/div/div/table/tbody/*")))
 
-for _ in range(len(all_elements)):
-    while True:
+for index in range(len(all_elements)):
+    for attempt in range(1, MAX_RETRIES + 1):
         try:
             driver.switch_to.default_content()
             switch_to_frame("iframe_New_EvalAnswerSubject1_Tab", By.ID)
             click_element("/html/body/form/div[5]/div/div/table/tbody/tr[1]/td[12]/input")
             driver.switch_to.default_content()
             switch_to_frame("iframe_New_EvalAnswerListItem_Tab", By.ID)
-            
+
             elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, f"//input[starts-with(@id, 'rb{opt}')]")))
             for element in elements:
                 element.click()
-            
+
             click_element("/html/body/form/div[3]/input")
             break
-        except Exception:
-            pass
+        except Exception as error:
+            print(f"Survey {index + 1}/{len(all_elements)}: attempt {attempt}/{MAX_RETRIES} failed ({type(error).__name__}).")
+    else:
+        print(f"Giving up on survey {index + 1} after {MAX_RETRIES} failed attempts.")
+        driver.quit()
+        sys.exit(1)
 
 # Close the browser
 driver.quit()

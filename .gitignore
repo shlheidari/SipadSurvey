@@ -1,0 +1,24 @@
+# Virtual environments
+venv/
+.venv/
+env/
+Lib/
+Scripts/
+pyvenv.cfg
+
+# Python
+__pycache__/
+*.py[cod]
+
+# PyInstaller output (publish survey.exe via GitHub Releases instead)
+build/
+dist/
+
+# Secrets / local config
+.env
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
