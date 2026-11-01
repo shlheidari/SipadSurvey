@@ -43,6 +43,20 @@ python survey.py
 3. Wait. The first start can take a while (ChromeDriver is downloaded
    automatically). You can minimize the window and keep using your computer.
 
+## Building the executable
+
+Pushing a tag such as `v1.0` runs the GitHub Actions workflow in
+`.github/workflows/release.yml`, which builds `survey.exe` with PyInstaller on
+Windows and attaches it to a new GitHub Release:
+
+```bash
+git tag v1.0
+git push origin v1.0
+```
+
+The workflow can also be started manually from the Actions tab; in that case the
+exe is only available as a workflow artifact.
+
 ## Notes
 
 - Your credentials are only typed into the Sipad login page; nothing is stored
